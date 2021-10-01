@@ -118,13 +118,17 @@ class Board {
         // horizontally check
 
         fieldsInARow = 0
-
+        var targetRow = -1
         for (row in 0..5){
-            if (boardRepresentation.fields[column][5 - row] > 0) {
+            if (boardRepresentation.fields[column][row] > 0) {
+                targetRow = row
+                break
+            }
+        }
 
                 for (column in 0..6) {
 
-                    if (boardRepresentation.fields[column][row] == relevantFieldType) {
+                    if (boardRepresentation.fields[column][targetRow] == relevantFieldType) {
 
                         fieldsInARow++
 
@@ -142,10 +146,8 @@ class Board {
 
                         fieldsInARow = 0
                     }
+
                 }
-                break
-            }
-        }
     }
 
 
