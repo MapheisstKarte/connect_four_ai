@@ -55,8 +55,12 @@ class Board {
         boardRepresentation.gameOver = false
         boardRepresentation.winner = Player.NONE
 
-        boardRepresentation.fields[boardRepresentation.moveStack.last()].remove(boardRepresentation.moveStack.last())
-
+        for (row in 0..5){
+            if (boardRepresentation.fields[boardRepresentation.moveStack.last()][row] > 0){
+                boardRepresentation.fields[boardRepresentation.moveStack.last()][row] = Field.NONE.fieldValue
+                break
+            }
+        }
 
         if (boardRepresentation.moveStack.last() !in boardRepresentation.legalMoves){
             boardRepresentation.legalMoves.add(boardRepresentation.moveStack.last())
@@ -73,6 +77,12 @@ class Board {
     }
 
     fun CheckResult(column: Int) {
+
+        if (boardRepresentation.legalMoves.isEmpty()){
+            boardRepresentation.gameOver = true
+            boardRepresentation.winner = Player.NONE
+            return
+        }
 
         // vertical check
 
@@ -97,7 +107,7 @@ class Board {
                         Player.RED -> Player.YELLOW
                         else -> Player.NONE
                     }
-                    break
+                    return
                 }
 
             } else {
@@ -113,9 +123,10 @@ class Board {
                 Player.RED -> Player.YELLOW
                 else -> Player.NONE
             }
+            return
         }
 
-        // horizontally check
+        // horizontal check
 
         fieldsInARow = 0
         var targetRow = -1
@@ -139,7 +150,7 @@ class Board {
                                 Player.RED -> Player.YELLOW
                                 else -> Player.NONE
                             }
-                            break
+                            return
                         }
 
                     } else {
@@ -148,6 +159,48 @@ class Board {
                     }
 
                 }
+
+        fieldsInARow = 0
+
+        // diagonal check
+
+        val columnOffsets = arrayOf(arrayOf(1, -1), arrayOf(-1, 1))
+        val rowOffsets = arrayOf(arrayOf(1, -1), arrayOf(1, -1))
+        var targetColumn = column
+        val tempTargetRow = targetRow
+
+        for (diagonal in 0..1) {
+            for (offset in 0..1) {
+
+                while (targetColumn in 0..6 && targetRow in 0..5) {
+
+                    if (boardRepresentation.fields[targetColumn][targetRow] == relevantFieldType) {
+
+                        fieldsInARow++
+
+                        if (fieldsInARow == 4) {
+                            boardRepresentation.gameOver = true
+                            boardRepresentation.winner = when (boardRepresentation.playerToMove) {
+                                Player.YELLOW -> Player.RED
+                                Player.RED -> Player.YELLOW
+                                else -> Player.NONE
+                            }
+                            return
+                        }
+
+                    } else {
+
+                        break
+                    }
+
+                    targetColumn += columnOffsets[diagonal][offset]
+                    targetRow += rowOffsets[diagonal][offset]
+                }
+            }
+            targetColumn = column
+            targetRow = tempTargetRow
+            fieldsInARow = 0
+        }
     }
 
 
